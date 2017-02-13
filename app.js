@@ -1,6 +1,5 @@
 var app = new PIXI.Application(800, 600, {backgroundColor : 0x1099bb});
 document.body.appendChild(app.view);
-
 // inits
 document.onmousemove = mouse_position;
 var x, y;
@@ -31,6 +30,8 @@ app.stage.addChild(startButton);
 
 function onClickToStartButton() {
     app.stage.removeChild(startButton);
+    let body = document.querySelector("body");
+    body.style.cssText = "cursor: none";
     startTheGame();
 }
 
