@@ -2,23 +2,13 @@ var app = new PIXI.Application(800, 600, {backgroundColor : 0x1099bb});
 document.body.appendChild(app.view);
 
 // inits
-var gravity = 0;
-var widthGravity = 0;
-document.onkeydown = press;
-function press(key) {
-    if(key.keyCode === 38) {
-        gravity += -0.5;
-    }
-    if(key.keyCode === 40) {
-        gravity += 0.5;
-    }
-    if(key.keyCode === 37) {
-        widthGravity += -0.5;
-    }
-    if(key.keyCode === 39) {
-        widthGravity += 0.5;
-    }
-};
+document.onmousemove = mouse_position;
+var x, y;
+function mouse_position(e) {
+    x = e.x;
+    y = e.y;
+}
+
 
 var style = new PIXI.TextStyle({
     fontFamily: 'Arial',
@@ -54,33 +44,26 @@ function startTheGame() {
     ship.scale.y *= 0.1;
     app.stage.addChild(ship);
 
-
-
     app.ticker.add(function() {
-        ship.y += gravity;
-        ship.x += widthGravity;
-        gravity += 0.1;
-        if(widthGravity > 0) widthGravity -= 0.1;
-        if(widthGravity < 0) widthGravity += 0.1;
-        if(ship.y > app.renderer.height) {
-            ship.y = app.renderer.height;
-            gravity = 0;
+        ship.x = x;
+        ship.y = y;
+        if(ship.y > app.renderer.height - 20) {
+            ship.y = app.renderer.height - 20;
         }
-        if(ship.y < 0) {
-            ship.y = 0;
-            gravity = 0;
+        if(ship.y < 100) {
+            ship.y = 100;
         }
 
-        if(ship.x > app.renderer.height) {
-            ship.x = app.renderer.height;
-            widthGravity = 0;
+        if(ship.x > app.renderer.width - 40) {
+            ship.x = app.renderer.width - 40;
         }
-        if(ship.x < 0) {
-            ship.x = 0;
-            widthGravity = 0;
+        if(ship.x < 40) {
+            ship.x = 40;
         }
     });
 
-
-
 }
+
+
+
+
