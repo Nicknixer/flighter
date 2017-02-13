@@ -63,6 +63,10 @@ function startTheGame() {
             meteors.push(meteor);
             app.stage.addChild(meteor);
         }
+        meteors.forEach(function (meteor, i) {
+            meteor.y += 1;
+
+        });
 
 
 
