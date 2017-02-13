@@ -2,6 +2,8 @@ var app = new PIXI.Application(800, 600, {backgroundColor : 0x1099bb});
 document.body.appendChild(app.view);
 // inits
 document.onmousemove = mouse_position;
+var lastTime = 0,
+    meteors = [];
 var x, y;
 function mouse_position(e) {
     x = e.x;
@@ -45,7 +47,25 @@ function startTheGame() {
     ship.scale.y *= 0.1;
     app.stage.addChild(ship);
 
+
+
     app.ticker.add(function() {
+        let d = new Date();
+        if (d.getTime()-lastTime >= 1000) {
+            ship.x = 20;
+            lastTime = d.getTime();
+            let meteor = PIXI.Sprite.fromImage('sprites/meteor.png');
+            meteor.anchor.set(0.5);
+            meteor.x = Math.floor(Math.random() * (app.renderer.width / 2 - 0 + 1)) + 0;
+            meteor.y = 0;
+            meteor.scale.x *= 0.1;
+            meteor.scale.y *= 0.1;
+            meteors.push(meteor);
+            app.stage.addChild(meteor);
+        }
+
+
+
         ship.x = x;
         ship.y = y;
         if(ship.y > app.renderer.height - 20) {
