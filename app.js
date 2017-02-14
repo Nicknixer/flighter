@@ -6,16 +6,10 @@ document.onmousemove = mouse_position;
 var lastTime = 0,
     meteors = [],
     clouds = [],
-    verticalSpeed = 0,
-    horizontalSpeed = 0,
-    speed = 1.5,
     cloudTexture = [],
     x,
     y,
     body = document.querySelector("body");
-
-cloudTexture.push('sprites/cloud.png');
-cloudTexture.push('sprites/cloudsecons.png');
 
 function mouse_position(e) {
     x = e.x;
@@ -55,8 +49,13 @@ function startTheGame() {
     ship.y = app.renderer.height / 2;
     ship.width = 40;
     ship.height = 110;
+
     app.stage.addChild(ship);
     ////
+    var cloudContainer = new PIXI.Container();
+    cloudContainer.zIndex = 0;
+
+    app.stage.addChild(cloudContainer);
 
     app.ticker.add(function() {
         let d = new Date();
@@ -64,28 +63,29 @@ function startTheGame() {
 
         if (d.getTime()-lastTime >= 1000) {
             lastTime = d.getTime();
-            // Создаем метеоры каждую секунду
-            let meteor = PIXI.Sprite.fromImage('sprites/meteor.png');
-            meteor.anchor.set(0.5);
-            meteor.x = getRand(10, app.renderer.width - 10);
-            meteor.y = 0;
-            meteor.scaleArg = getRand(-5, 5) / 200;
-            meteor.scale.x *= 0.1;
-            meteor.scale.y *= 0.1;
-            meteors.push(meteor);
-            app.stage.addChild(meteor);
             // Создаем облака каждую секунду
-            let cloud = PIXI.Sprite.fromImage(cloudTexture[getRand(0,1)]);
+            let cloud = PIXI.Sprite.fromImage('sprites/cloud.png');
             cloud.anchor.set(0.5);
             cloud.x = getRand(10, app.renderer.width - 10);
-            cloud.y = -300;
+            cloud.y = -200;
             cloud.rotation = getRand(1,8);
-            let scale = 0.8 * getRand(2,5);
+            let scale = 0.7 * getRand(2,5);
             cloud.verticalSpeed = (5 + getRand(1,5)) / 10;
             cloud.scale.x *= scale;
             cloud.scale.y *= scale;
             clouds.push(cloud);
             app.stage.addChild(cloud);
+            // Создаем метеоры каждую секунду
+            let meteor = PIXI.Sprite.fromImage('sprites/meteor.png');
+            meteor.anchor.set(0.5);
+            meteor.x = getRand(10, app.renderer.width - 10);
+            meteor.y = -400;
+            meteor.scaleArg = getRand(-5, 5) / 200;
+            meteor.scale.x *= 0.1;
+            meteor.scale.y *= 0.1;
+            //meteor.zOrder = 210;
+            meteors.push(meteor);
+            app.stage.addChild(meteor);
         }
 
         // Крутим метеоры
@@ -110,22 +110,8 @@ function startTheGame() {
         });
 
         // Двигаем корабль
-        if(ship.x > x+speed) {
-            horizontalSpeed = (x+speed - ship.x)/70 * speed;
-        } else if (ship.x < x-speed) {
-            horizontalSpeed = (x+speed - ship.x)/70 * speed;
-        } else {
-            horizontalSpeed = 0;
-        }
-        if(ship.y > y+speed) {
-            verticalSpeed = (y+speed - ship.y)/70 * speed;
-        } else if(ship.y < y - speed) {
-            verticalSpeed = (y+speed - ship.y)/70 * speed;
-        } else {
-            verticalSpeed = 0;
-        }
-        ship.x += horizontalSpeed;
-        ship.y += verticalSpeed;
+        ship.x += (x - ship.x) * 0.02;
+        ship.y += (y - ship.y) * 0.02;
 
         if(ship.y > app.renderer.height - 20) {
             ship.y = app.renderer.height - 20;
