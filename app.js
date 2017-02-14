@@ -80,16 +80,16 @@ function startTheGame() {
         });
 
         if(ship.x > x+speed) {
-            horizontalSpeed = -1 * speed;
+            horizontalSpeed = (x+speed - ship.x)/70 * speed;
         } else if (ship.x < x-speed) {
-            horizontalSpeed = 1 * speed;
+            horizontalSpeed = (x+speed - ship.x)/70 * speed;
         } else {
             horizontalSpeed = 0;
         }
         if(ship.y > y+speed) {
-            verticalSpeed = -1 * speed;
+            verticalSpeed = (y+speed - ship.y)/70 * speed;
         } else if(ship.y < y - speed) {
-            verticalSpeed = 1 * speed;
+            verticalSpeed = (y+speed - ship.y)/70 * speed;
         } else {
             verticalSpeed = 0;
         }
