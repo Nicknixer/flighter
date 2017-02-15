@@ -4,6 +4,33 @@ document.body.appendChild(app.view);
 document.onmousemove = mouse_position;
 document.onmousedown = fire;
 
+class Statistic {
+    constructor() {
+        this.money = 0;
+        this.drawMoney();
+
+    }
+
+    addMoney(arg) {
+        this.money += arg;
+        this.moneyView.text = "Деньги: " + this.money;
+    }
+
+    drawMoney() {
+        var style = new PIXI.TextStyle({
+            fontFamily: 'Arial',
+            fontSize: 12,
+            fill: '#FFF'
+        });
+        this.moneyView = new PIXI.Text('', style);
+        this.addMoney(0);
+        this.moneyView.anchor.set(0.5);
+        this.moneyView.x = 40;
+        this.moneyView.y = app.renderer.height - 10;
+        app.stage.addChild(this.moneyView);
+    }
+}
+
 var lastTime = 0,
     meteors = [],
     clouds = [],
@@ -13,10 +40,11 @@ var lastTime = 0,
     y, // y координата указателя
     body = document.querySelector("body"),
     lastShoot = 0,
-    intervalID = [];
+    intervalID = [],
+    stats = new Statistic();
 
 startButton();
-
+upgareButton();
 /*
  * Сохраняем координаты указателя мыши
  */
@@ -68,6 +96,7 @@ function startTheGame() {
                     app.stage.removeChild(meteor);
                     meteors.splice(i, 1);
                     bullet.y = -11;
+                    stats.addMoney(10);
                 }
             });
             // Удаляем облака, вылетевшие за экран
@@ -123,6 +152,17 @@ function fire(e) {
             bullet.verticalSpeed = 1;
             bullets.push(bullet);
             app.stage.addChild(bullet);
+            if(ship.secondWeapon) {
+                let bullet = PIXI.Sprite.fromImage('sprites/rocket.png');
+                bullet.anchor.set(0.5);
+                bullet.width = 20;
+                bullet.height = 20;
+                bullet.x = ship.x - 10;
+                bullet.y = ship.y;
+                bullet.verticalSpeed = 0.5;
+                bullets.push(bullet);
+                app.stage.addChild(bullet);
+            }
             lastShoot = d.getTime();
         }
     }
@@ -140,6 +180,8 @@ function createShip() {
     ship.width = 40;
     ship.height = 110;
     ship.isHit = isHit;
+    ship.coins = 0;
+    ship.secondWeapon = true;
     app.stage.addChild(ship);
 }
 
@@ -229,6 +271,7 @@ function startButton() {
     startButton.interactive = true;
     startButton.buttonMode = true;
     startButton.on('pointerdown', onClickToStartButton);
+    if(ship) startButton.text = "Game over! \n\n\n RESTART";
     app.stage.addChild(startButton);
 
     /*
@@ -245,3 +288,27 @@ function startButton() {
         }
     }
 }
+
+function upgareButton() {
+    var style = new PIXI.TextStyle({
+        fontFamily: 'Arial',
+        fontSize: 12,
+        fill: '#FFF'
+    });
+    var startButton = new PIXI.Text('Upgrade', style);
+    startButton.anchor.set(0.5);
+    startButton.x = app.renderer.width / 2;
+    startButton.y = app.renderer.height - 10;
+    startButton.interactive = true;
+    startButton.buttonMode = true;
+    startButton.on('pointerdown', onClickToStartButton);
+    if(ship) startButton.text = "Game over! \n\n\n RESTART";
+    app.stage.addChild(startButton);
+
+    function onClickToStartButton() {
+        if(ship.coins > 10) {
+            ship.secondWeapon = true;
+        }
+    }
+}
+
