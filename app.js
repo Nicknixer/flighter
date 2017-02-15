@@ -3,14 +3,20 @@ document.body.appendChild(app.view);
 // inits
 document.onmousemove = mouse_position;
 
+document.onmousedown = fire;
 var lastTime = 0,
     meteors = [],
     clouds = [],
-    cloudTexture = [],
-    x,
-    y,
-    body = document.querySelector("body");
+    bullets = [],
+    ship,
+    x, // x координата указателя
+    y, // y координата указателя
+    body = document.querySelector("body"),
+    lastShoot = 0;
 
+/*
+ * Сохраняем координаты указателя мыши
+ */
 function mouse_position(e) {
     x = e.x;
     y = e.y;
@@ -34,6 +40,10 @@ startButton.buttonMode = true;
 startButton.on('pointerdown', onClickToStartButton);
 app.stage.addChild(startButton);
 
+/*
+ * Обработчик нажатия кнопки START
+ */
+
 function onClickToStartButton() {
     app.stage.removeChild(startButton);
     body.style.cssText = "cursor: move";// Изменяем курсор
@@ -41,9 +51,8 @@ function onClickToStartButton() {
 }
 
 function startTheGame() {
-
     // Создаем корабль игрока
-    var ship = PIXI.Sprite.fromImage('sprites/ship.png');
+    ship = PIXI.Sprite.fromImage('sprites/ship.png');
     ship.anchor.set(0.5);
     ship.x = app.renderer.width / 2;
     ship.y = app.renderer.height / 2;
@@ -109,6 +118,16 @@ function startTheGame() {
             }
         });
 
+        // Двигаем выстрелы
+        bullets.forEach(function (bullet, i) {
+            bullet.y -= bullet.verticalSpeed;
+            // Удаляем облака, вылетевшие за экран
+            if(bullet.y < -10) {
+                app.stage.removeChild(bullet);
+                bullets.splice(i, 1);
+            }
+        });
+
         // Двигаем корабль
         ship.x += (x - ship.x) * 0.02;
         ship.y += (y - ship.y) * 0.02;
@@ -132,6 +151,22 @@ function startTheGame() {
 
 function getRand(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function fire(e) {
+    let d = new Date();
+    if(d.getTime() - lastShoot > 1000) {
+        let bullet = PIXI.Sprite.fromImage('sprites/rocket.png');
+        bullet.anchor.set(0.5);
+        bullet.width = 20;
+        bullet.height = 20;
+        bullet.x = ship.x;
+        bullet.y = ship.y - 40;
+        bullet.verticalSpeed = 1;
+        bullets.push(bullet);
+        app.stage.addChild(bullet);
+        lastShoot = d.getTime();
+    }
 }
 
 
