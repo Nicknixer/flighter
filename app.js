@@ -2,8 +2,8 @@ var app = new PIXI.Application(800, 600, {backgroundColor : 0x1099bb});
 document.body.appendChild(app.view);
 // inits
 document.onmousemove = mouse_position;
-
 document.onmousedown = fire;
+
 var lastTime = 0,
     meteors = [],
     clouds = [],
@@ -15,6 +15,8 @@ var lastTime = 0,
     lastShoot = 0,
     intervalID = [];
 
+startButton();
+
 /*
  * Сохраняем координаты указателя мыши
  */
@@ -23,38 +25,10 @@ function mouse_position(e) {
     y = e.y;
 }
 
-// Стиль для кнопки START
-var style = new PIXI.TextStyle({
-    fontFamily: 'Arial',
-    fontSize: 36,
-    fontStyle: 'Bold',
-    fill: '#FFF'
-});
 
-// Создаем кнопку START
-var startButton = new PIXI.Text('START', style);
-startButton.anchor.set(0.5);
-startButton.x = app.renderer.width / 2;
-startButton.y = app.renderer.height / 2;
-startButton.interactive = true;
-startButton.buttonMode = true;
-startButton.on('pointerdown', onClickToStartButton);
-app.stage.addChild(startButton);
-
-/*
- * Обработчик нажатия кнопки START
- */
-
-function onClickToStartButton() {
-    app.stage.removeChild(startButton);
-    body.style.cssText = "cursor: move";// Изменяем курсор
-    startTheGame();
-}
 
 function startTheGame() {
-    createShip();
-    intervalID.push(setInterval(createMeteor, 500));
-    intervalID.push(setInterval(createCloud, 1000));
+    start();
 
     app.ticker.add(function() {
         let d = new Date();
@@ -65,6 +39,7 @@ function startTheGame() {
             meteor.y += 1;
             if(ship.isHit(meteor.x, meteor.y)) {
                 app.stage.removeChild(ship);
+                gameOver();
             }
 
             // Удаляем метеоры, вылетевшие за экран
@@ -136,18 +111,20 @@ function getRand(min, max) {
  */
 
 function fire(e) {
-    let d = new Date();
-    if(d.getTime() - lastShoot > 500) {
-        let bullet = PIXI.Sprite.fromImage('sprites/rocket.png');
-        bullet.anchor.set(0.5);
-        bullet.width = 20;
-        bullet.height = 20;
-        bullet.x = ship.x;
-        bullet.y = ship.y - 40;
-        bullet.verticalSpeed = 1;
-        bullets.push(bullet);
-        app.stage.addChild(bullet);
-        lastShoot = d.getTime();
+    if(ship) {
+        let d = new Date();
+        if(d.getTime() - lastShoot > 500) {
+            let bullet = PIXI.Sprite.fromImage('sprites/rocket.png');
+            bullet.anchor.set(0.5);
+            bullet.width = 20;
+            bullet.height = 20;
+            bullet.x = ship.x;
+            bullet.y = ship.y - 40;
+            bullet.verticalSpeed = 1;
+            bullets.push(bullet);
+            app.stage.addChild(bullet);
+            lastShoot = d.getTime();
+        }
     }
 }
 
@@ -214,3 +191,57 @@ function isHit(corx, cory) {
     return false;
 }
 
+/*
+ * Проигрыш
+ */
+
+function gameOver() {
+    intervalID.forEach(function (interval) {
+        clearInterval(interval);
+    });
+    meteors.forEach(function (meteor) {
+        app.stage.removeChild(meteor);
+    });
+    meteors = [];
+    startButton();
+}
+
+function start() {
+    createShip();
+    intervalID.push(setInterval(createMeteor, 500));
+    intervalID.push(setInterval(createCloud, 1000));
+}
+
+function startButton() {
+    // Стиль для кнопки START
+    var style = new PIXI.TextStyle({
+        fontFamily: 'Arial',
+        fontSize: 36,
+        fontStyle: 'Bold',
+        fill: '#FFF'
+    });
+
+// Создаем кнопку START
+    var startButton = new PIXI.Text('START', style);
+    startButton.anchor.set(0.5);
+    startButton.x = app.renderer.width / 2;
+    startButton.y = app.renderer.height / 2;
+    startButton.interactive = true;
+    startButton.buttonMode = true;
+    startButton.on('pointerdown', onClickToStartButton);
+    app.stage.addChild(startButton);
+
+    /*
+     * Обработчик нажатия кнопки START
+     */
+
+    function onClickToStartButton() {
+        app.stage.removeChild(startButton);
+        body.style.cssText = "cursor: move";// Изменяем курсор
+        if(ship) {
+            start();
+        } else {
+            startTheGame();
+        }
+    }
+}
