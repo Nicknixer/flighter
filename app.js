@@ -87,10 +87,12 @@ function startTheGame() {
         // Двигаем выстрелы
         bullets.forEach(function (bullet, i) {
             bullet.y -= bullet.verticalSpeed;
+            // Попали ли по метеору
             meteors.forEach(function (meteor, i) {
                 if(meteor.isHit(bullet.x, bullet.y)) {
                     app.stage.removeChild(meteor);
                     meteors.splice(i, 1);
+                    bullet.y = -11;
                 }
             });
             // Удаляем облака, вылетевшие за экран
