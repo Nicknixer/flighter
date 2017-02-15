@@ -29,6 +29,9 @@ class Statistic {
         this.moneyView.y = app.renderer.height - 10;
         app.stage.addChild(this.moneyView);
     }
+    clear() {
+        this.addMoney(-1 * this.money);
+    }
 }
 
 var lastTime = 0,
@@ -96,7 +99,7 @@ function startTheGame() {
                     app.stage.removeChild(meteor);
                     meteors.splice(i, 1);
                     bullet.y = -11;
-                    stats.addMoney(10);
+                    stats.addMoney(1);
                 }
             });
             // Удаляем облака, вылетевшие за экран
@@ -142,14 +145,14 @@ function getRand(min, max) {
 function fire(e) {
     if(ship) {
         let d = new Date();
-        if(d.getTime() - lastShoot > 500) {
+        if(d.getTime() - lastShoot > 800) {
             let bullet = PIXI.Sprite.fromImage('sprites/rocket.png');
             bullet.anchor.set(0.5);
             bullet.width = 20;
             bullet.height = 20;
             bullet.x = ship.x;
             bullet.y = ship.y - 40;
-            bullet.verticalSpeed = 1;
+            bullet.verticalSpeed = 0.8;
             bullets.push(bullet);
             app.stage.addChild(bullet);
             if(ship.secondWeapon) {
@@ -159,7 +162,7 @@ function fire(e) {
                 bullet.height = 20;
                 bullet.x = ship.x - 10;
                 bullet.y = ship.y;
-                bullet.verticalSpeed = 0.5;
+                bullet.verticalSpeed = 0.4;
                 bullets.push(bullet);
                 app.stage.addChild(bullet);
             }
@@ -181,7 +184,6 @@ function createShip() {
     ship.height = 110;
     ship.isHit = isHit;
     ship.coins = 0;
-    ship.secondWeapon = true;
     app.stage.addChild(ship);
 }
 
@@ -245,6 +247,7 @@ function gameOver() {
         app.stage.removeChild(meteor);
     });
     meteors = [];
+    stats.clear();
     startButton();
 }
 
@@ -295,19 +298,19 @@ function upgareButton() {
         fontSize: 12,
         fill: '#FFF'
     });
-    var startButton = new PIXI.Text('Upgrade', style);
+    var startButton = new PIXI.Text('Upgrade weapons (10 coins)', style);
     startButton.anchor.set(0.5);
     startButton.x = app.renderer.width / 2;
     startButton.y = app.renderer.height - 10;
     startButton.interactive = true;
     startButton.buttonMode = true;
     startButton.on('pointerdown', onClickToStartButton);
-    if(ship) startButton.text = "Game over! \n\n\n RESTART";
     app.stage.addChild(startButton);
 
     function onClickToStartButton() {
-        if(ship.coins > 10) {
+        if(stats.money > 10) {
             ship.secondWeapon = true;
+            stats.addMoney(-10);
         }
     }
 }
