@@ -12,7 +12,8 @@ var lastTime = 0,
     x, // x координата указателя
     y, // y координата указателя
     body = document.querySelector("body"),
-    lastShoot = 0;
+    lastShoot = 0,
+    intervalID = [];
 
 /*
  * Сохраняем координаты указателя мыши
@@ -51,51 +52,12 @@ function onClickToStartButton() {
 }
 
 function startTheGame() {
-    // Создаем корабль игрока
-    ship = PIXI.Sprite.fromImage('sprites/ship.png');
-    ship.anchor.set(0.5);
-    ship.x = app.renderer.width / 2;
-    ship.y = app.renderer.height / 2;
-    ship.width = 40;
-    ship.height = 110;
-
-    app.stage.addChild(ship);
-    ////
-    var cloudContainer = new PIXI.Container();
-    cloudContainer.zIndex = 0;
-
-    app.stage.addChild(cloudContainer);
+    createShip();
+    intervalID.push(setInterval(createMeteor, 500));
+    intervalID.push(setInterval(createCloud, 1000));
 
     app.ticker.add(function() {
         let d = new Date();
-
-
-        if (d.getTime()-lastTime >= 1000) {
-            lastTime = d.getTime();
-            // Создаем облака каждую секунду
-            let cloud = PIXI.Sprite.fromImage('sprites/cloud.png');
-            cloud.anchor.set(0.5);
-            cloud.x = getRand(10, app.renderer.width - 10);
-            cloud.y = -200;
-            cloud.rotation = getRand(1,8);
-            let scale = 0.7 * getRand(2,5);
-            cloud.verticalSpeed = (5 + getRand(1,5)) / 10;
-            cloud.scale.x *= scale;
-            cloud.scale.y *= scale;
-            clouds.push(cloud);
-            app.stage.addChild(cloud);
-            // Создаем метеоры каждую секунду
-            let meteor = PIXI.Sprite.fromImage('sprites/meteor.png');
-            meteor.anchor.set(0.5);
-            meteor.x = getRand(10, app.renderer.width - 10);
-            meteor.y = -400;
-            meteor.scaleArg = getRand(-5, 5) / 200;
-            meteor.scale.x *= 0.1;
-            meteor.scale.y *= 0.1;
-            //meteor.zOrder = 210;
-            meteors.push(meteor);
-            app.stage.addChild(meteor);
-        }
 
         // Крутим метеоры
         meteors.forEach(function (meteor, i) {
@@ -121,6 +83,13 @@ function startTheGame() {
         // Двигаем выстрелы
         bullets.forEach(function (bullet, i) {
             bullet.y -= bullet.verticalSpeed;
+            meteors.forEach(function (meteor, i) {
+                if(meteor.isHit(bullet.x, bullet.y)) {
+                    app.stage.removeChild(meteor);
+                    meteors.splice(i, 1);
+                }
+
+            })
             // Удаляем облака, вылетевшие за экран
             if(bullet.y < -10) {
                 app.stage.removeChild(bullet);
@@ -149,13 +118,21 @@ function startTheGame() {
 
 }
 
+/*
+ * Обработчик выстрела
+ */
+
 function getRand(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+/*
+ * Обработчик выстрела
+ */
+
 function fire(e) {
     let d = new Date();
-    if(d.getTime() - lastShoot > 1000) {
+    if(d.getTime() - lastShoot > 500) {
         let bullet = PIXI.Sprite.fromImage('sprites/rocket.png');
         bullet.anchor.set(0.5);
         bullet.width = 20;
@@ -169,5 +146,65 @@ function fire(e) {
     }
 }
 
+/*
+ * Создание объекта с кораблем игрока
+ */
 
+function createShip() {
+    ship = PIXI.Sprite.fromImage('sprites/ship.png');
+    ship.anchor.set(0.5);
+    ship.x = app.renderer.width / 2;
+    ship.y = app.renderer.height / 2;
+    ship.width = 40;
+    ship.height = 110;
+    app.stage.addChild(ship);
+}
+
+/*
+ * Создание облака
+ */
+
+function createCloud() {
+    let cloud = PIXI.Sprite.fromImage('sprites/cloud.png');
+    cloud.anchor.set(0.5);
+    cloud.x = getRand(10, app.renderer.width - 10);
+    cloud.y = -200;
+    cloud.rotation = getRand(1,8);
+    cloud.verticalSpeed = (5 + getRand(1,5)) / 10;
+    let scale = 0.7 * getRand(2,5);
+    cloud.scale.x *= scale;
+    cloud.scale.y *= scale;
+    clouds.push(cloud);
+    app.stage.addChild(cloud);
+}
+
+/*
+ * Создание метеора
+ */
+
+function createMeteor() {
+    let meteor = PIXI.Sprite.fromImage('sprites/meteor.png');
+    meteor.anchor.set(0.5);
+    meteor.x = getRand(10, app.renderer.width - 10);
+    meteor.y = -400;
+    meteor.scaleArg = getRand(-5, 5) / 200;
+    meteor.scale.x *= 0.1;
+    meteor.scale.y *= 0.1;
+    meteor.isHit = isHit;
+    meteors.push(meteor);
+    app.stage.addChild(meteor);
+}
+
+/*
+ * Проверка столкновений
+ */
+
+function isHit(corx, cory) {
+    if( (corx < this.x+this.width/2) && (corx > this.x-this.width/2) ) {
+        if( (cory < this.y+this.height/2) && (cory > this.y - this.height/2) ) {
+            return true;
+        }
+    }
+    return false;
+}
 
