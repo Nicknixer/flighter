@@ -63,6 +63,10 @@ function startTheGame() {
         meteors.forEach(function (meteor, i) {
             meteor.rotation += meteor.scaleArg;
             meteor.y += 1;
+            if(ship.isHit(meteor.x, meteor.y)) {
+                app.stage.removeChild(ship);
+            }
+
             // Удаляем метеоры, вылетевшие за экран
             if(meteor.y > app.renderer.height) {
                 app.stage.removeChild(meteor);
@@ -88,8 +92,7 @@ function startTheGame() {
                     app.stage.removeChild(meteor);
                     meteors.splice(i, 1);
                 }
-
-            })
+            });
             // Удаляем облака, вылетевшие за экран
             if(bullet.y < -10) {
                 app.stage.removeChild(bullet);
@@ -157,6 +160,7 @@ function createShip() {
     ship.y = app.renderer.height / 2;
     ship.width = 40;
     ship.height = 110;
+    ship.isHit = isHit;
     app.stage.addChild(ship);
 }
 
