@@ -93,6 +93,7 @@ function startTheGame() {
         // Двигаем выстрелы
         bullets.forEach(function (bullet, i) {
             bullet.y -= bullet.verticalSpeed;
+            bullet.x += bullet.horizontalSpeed;
             // Попали ли по метеору
             meteors.forEach(function (meteor, i) {
                 if(meteor.isHit(bullet.x, bullet.y)) {
@@ -153,14 +154,30 @@ function fire(e) {
             bullet.x = ship.x;
             bullet.y = ship.y - 40;
             bullet.verticalSpeed = 0.8;
+            bullet.horizontalSpeed = 0;
             bullets.push(bullet);
             app.stage.addChild(bullet);
-            if(ship.secondWeapon) {
+            if(ship.weaponLevel > 0) {
                 let bullet = PIXI.Sprite.fromImage('sprites/rocket.png');
                 bullet.anchor.set(0.5);
                 bullet.width = 20;
                 bullet.height = 20;
+                bullet.rotation = -0.5;
+                bullet.horizontalSpeed = -1 * 0.2;
                 bullet.x = ship.x - 10;
+                bullet.y = ship.y;
+                bullet.verticalSpeed = 0.4;
+                bullets.push(bullet);
+                app.stage.addChild(bullet);
+            }
+            if(ship.weaponLevel > 1) {
+                let bullet = PIXI.Sprite.fromImage('sprites/rocket.png');
+                bullet.anchor.set(0.5);
+                bullet.width = 20;
+                bullet.height = 20;
+                bullet.rotation = 0.5;
+                bullet.horizontalSpeed = 0.2;
+                bullet.x = ship.x + 10;
                 bullet.y = ship.y;
                 bullet.verticalSpeed = 0.4;
                 bullets.push(bullet);
@@ -184,6 +201,7 @@ function createShip() {
     ship.height = 110;
     ship.isHit = isHit;
     ship.coins = 0;
+    ship.weaponLevel = 0;
     app.stage.addChild(ship);
 }
 
@@ -296,7 +314,7 @@ function upgareButton() {
     var style = new PIXI.TextStyle({
         fontFamily: 'Arial',
         fontSize: 12,
-        fill: '#FFF'
+        fill: '#000'
     });
     var startButton = new PIXI.Text('Upgrade weapons (10 coins)', style);
     startButton.anchor.set(0.5);
@@ -308,8 +326,8 @@ function upgareButton() {
     app.stage.addChild(startButton);
 
     function onClickToStartButton() {
-        if(stats.money > 10) {
-            ship.secondWeapon = true;
+        if(stats.money > ship.weaponLevel*10 + 10) {
+            ship.weaponLevel += 1;
             stats.addMoney(-10);
         }
     }
