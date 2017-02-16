@@ -68,6 +68,7 @@ function startTheGame() {
         meteors.forEach(function (meteor, i) {
             meteor.rotation += meteor.scaleArg;
             meteor.y += 1;
+            meteor.x += meteor.horizontalSpeed;
             if(ship.isHit(meteor.x, meteor.y)) {
                 app.stage.removeChild(ship);
                 gameOver();
@@ -146,7 +147,7 @@ function getRand(min, max) {
 function fire(e) {
     if(ship) {
         let d = new Date();
-        if(d.getTime() - lastShoot > 800) {
+        if(d.getTime() - lastShoot > 1200) {
             let bullet = PIXI.Sprite.fromImage('sprites/rocket.png');
             bullet.anchor.set(0.5);
             bullet.width = 20;
@@ -230,9 +231,10 @@ function createCloud() {
 function createMeteor() {
     let meteor = PIXI.Sprite.fromImage('sprites/meteor.png');
     meteor.anchor.set(0.5);
-    meteor.x = getRand(10, app.renderer.width - 10);
+    meteor.x = getRand(-10, app.renderer.width +10);
     meteor.y = -400;
     meteor.scaleArg = getRand(-5, 5) / 200;
+    meteor.horizontalSpeed = getRand(-10,10)/50;
     meteor.scale.x *= 0.1;
     meteor.scale.y *= 0.1;
     meteor.isHit = isHit;
