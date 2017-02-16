@@ -67,7 +67,7 @@ function startTheGame() {
         // Крутим метеоры
         meteors.forEach(function (meteor, i) {
             meteor.rotation += meteor.scaleArg;
-            meteor.y += 1;
+            meteor.y += meteor.verticalSpeed;
             meteor.x += meteor.horizontalSpeed;
             if(ship.isHit(meteor.x, meteor.y)) {
                 app.stage.removeChild(ship);
@@ -234,7 +234,12 @@ function createMeteor() {
     meteor.x = getRand(-10, app.renderer.width +10);
     meteor.y = -400;
     meteor.scaleArg = getRand(-5, 5) / 200;
-    meteor.horizontalSpeed = getRand(-10,10)/50;
+    if(meteor.x > app.renderer.width/2) {
+        meteor.horizontalSpeed = -1*getRand(0,10)/20;
+    } else {
+        meteor.horizontalSpeed = getRand(0,10)/20;
+    }
+    meteor.verticalSpeed = getRand(1,30)/10;
     meteor.scale.x *= 0.1;
     meteor.scale.y *= 0.1;
     meteor.isHit = isHit;
