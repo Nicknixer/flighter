@@ -141,7 +141,7 @@ function startTheGame() {
         bullets.forEach(function (bullet, i) {
             bullet.y -= bullet.verticalSpeed;
             bullet.x += bullet.horizontalSpeed;
-            bullet.verticalSpeed *= 1.02;
+            bullet.verticalSpeed += bullet.a * bullet.verticalSpeed * bullet.verticalSpeed / 300 + 0.01;
             // Попали ли по метеору
             meteors.forEach(function (meteor, i) {
                 if(meteor.isHit(bullet.x, bullet.y)) {
@@ -197,18 +197,73 @@ function fire(e) {
         if(d.getTime() - lastShoot > 1200) {
             let bullet = PIXI.Sprite.fromImage('sprites/rocket.png');
             bullet.anchor.set(0.5);
-            bullet.width = 20;
-            bullet.height = 20;
-            bullet.x = ship.x;
-            bullet.y = ship.y - 50;
-            bullet.verticalSpeed = 0.1;
-            bullet.horizontalSpeed = getRand(-1, 1)/10;
+            bullet.width = 15;
+            bullet.height = 15;
+            bullet.x = ship.x-15;
+            bullet.y = ship.y - 30;
+            bullet.verticalSpeed = 0.3;
+            bullet.horizontalSpeed = 0;
+            bullet.a = 1; // Ускорение
             bullets.push(bullet);
             app.stage.addChild(bullet);
 
             let horizontalSpeedLeftAndRightWeapon = 0.4;
-
             if(ship.weaponLevel > 0) {
+                let bullet = PIXI.Sprite.fromImage('sprites/rocket.png');
+                bullet.anchor.set(0.5);
+                bullet.width = 15;
+                bullet.height = 15;
+                bullet.x = ship.x+15;
+                bullet.y = ship.y - 30;
+                bullet.verticalSpeed = 0.3;
+                bullet.horizontalSpeed = 0;
+                bullet.a = 1.01; // Ускорение
+                bullets.push(bullet);
+                app.stage.addChild(bullet);
+            }
+
+            if(ship.weaponLevel > 1) {
+                let bullet = PIXI.Sprite.fromImage('sprites/smallrocket.png');
+                bullet.anchor.set(0.5);
+                bullet.width = 10;
+                bullet.height = 10;
+                bullet.horizontalSpeed = -horizontalSpeedLeftAndRightWeapon*2;
+                bullet.x = ship.x - 10;
+                bullet.y = ship.y;
+                bullet.verticalSpeed = 0.02;
+                bullet.a = 1.04;
+                bullets.push(bullet);
+                app.stage.addChild(bullet);
+            }
+            if(ship.weaponLevel > 2) {
+                let bullet = PIXI.Sprite.fromImage('sprites/smallrocket.png');
+                bullet.anchor.set(0.5);
+                bullet.width = 10;
+                bullet.height = 10;
+                bullet.horizontalSpeed = +horizontalSpeedLeftAndRightWeapon*2;
+                bullet.x = ship.x + 10;
+                bullet.y = ship.y;
+                bullet.verticalSpeed = 0.02;
+                bullet.a = 1.04;
+                bullets.push(bullet);
+                app.stage.addChild(bullet);
+            }
+
+            if(ship.weaponLevel > 3) {
+                let bullet = PIXI.Sprite.fromImage('sprites/rocket.png');
+                bullet.anchor.set(0.5);
+                bullet.width = 20;
+                bullet.height = 20;
+                bullet.horizontalSpeed = horizontalSpeedLeftAndRightWeapon;
+                bullet.x = ship.x + 10;
+                bullet.y = ship.y;
+                bullet.verticalSpeed = -2;
+                bullet.a = 1.01;
+                bullets.push(bullet);
+                app.stage.addChild(bullet);
+            }
+
+            if(ship.weaponLevel > 4) {
                 let bullet = PIXI.Sprite.fromImage('sprites/rocket.png');
                 bullet.anchor.set(0.5);
                 bullet.width = 20;
@@ -216,19 +271,8 @@ function fire(e) {
                 bullet.horizontalSpeed = -horizontalSpeedLeftAndRightWeapon;
                 bullet.x = ship.x - 10;
                 bullet.y = ship.y;
-                bullet.verticalSpeed = 0.05;
-                bullets.push(bullet);
-                app.stage.addChild(bullet);
-            }
-            if(ship.weaponLevel > 1) {
-                let bullet = PIXI.Sprite.fromImage('sprites/rocket.png');
-                bullet.anchor.set(0.5);
-                bullet.width = 20;
-                bullet.height = 20;
-                bullet.horizontalSpeed = +horizontalSpeedLeftAndRightWeapon;
-                bullet.x = ship.x + 10;
-                bullet.y = ship.y;
-                bullet.verticalSpeed = 0.05;
+                bullet.verticalSpeed = -2;
+                bullet.a = 1.01;
                 bullets.push(bullet);
                 app.stage.addChild(bullet);
             }
