@@ -25,7 +25,7 @@ class Statistic {
     addMoney(arg) {
         this.money += arg;
         this.moneyView.text =
-            "Деньги: " + this.money +
+            "Деньги: " + Math.floor(this.money) +
             "\nУровень оружия: " + ship.weaponLevel +
             "\nСтоимость улучшения: " + this.getCostOfNewUpgrade() + " (Нажмите 1 для улучшения)";
     }
@@ -145,10 +145,13 @@ function startTheGame() {
             // Попали ли по метеору
             meteors.forEach(function (meteor, i) {
                 if(meteor.isHit(bullet.x, bullet.y)) {
-                    app.stage.removeChild(meteor);
-                    meteors.splice(i, 1);
-                    bullet.y = -11;
-                    stats.addMoney(1);
+                    meteor.health -= bullet.damage;
+                    bullet.y = -11; // Уничтожаем пулю
+                    if(meteor.health <= 0) {
+                        stats.addMoney(meteor.width/10);
+                        app.stage.removeChild(meteor);
+                        meteors.splice(i, 1);
+                    }
                 }
             });
             // Удаляем облака, вылетевшие за экран
@@ -204,6 +207,7 @@ function fire(e) {
             bullet.verticalSpeed = 0.3;
             bullet.horizontalSpeed = 0;
             bullet.a = 1; // Ускорение
+            bullet.damage = bullet.width+bullet.height;
             bullets.push(bullet);
             app.stage.addChild(bullet);
 
@@ -217,6 +221,7 @@ function fire(e) {
                 bullet.y = ship.y - 30;
                 bullet.verticalSpeed = 0.3;
                 bullet.horizontalSpeed = 0;
+                bullet.damage = bullet.width+bullet.height;
                 bullet.a = 1.01; // Ускорение
                 bullets.push(bullet);
                 app.stage.addChild(bullet);
@@ -232,6 +237,7 @@ function fire(e) {
                 bullet.y = ship.y;
                 bullet.verticalSpeed = 0.02;
                 bullet.a = 1.04;
+                bullet.damage = bullet.width+bullet.height;
                 bullets.push(bullet);
                 app.stage.addChild(bullet);
             }
@@ -245,6 +251,7 @@ function fire(e) {
                 bullet.y = ship.y;
                 bullet.verticalSpeed = 0.02;
                 bullet.a = 1.04;
+                bullet.damage = bullet.width+bullet.height;
                 bullets.push(bullet);
                 app.stage.addChild(bullet);
             }
@@ -259,6 +266,7 @@ function fire(e) {
                 bullet.y = ship.y;
                 bullet.verticalSpeed = -2;
                 bullet.a = 1.01;
+                bullet.damage = bullet.width+bullet.height;
                 bullets.push(bullet);
                 app.stage.addChild(bullet);
             }
@@ -273,6 +281,22 @@ function fire(e) {
                 bullet.y = ship.y;
                 bullet.verticalSpeed = -2;
                 bullet.a = 1.01;
+                bullet.damage = bullet.width+bullet.height;
+                bullets.push(bullet);
+                app.stage.addChild(bullet);
+            }
+
+            if(ship.weaponLevel > 5) {
+                let bullet = PIXI.Sprite.fromImage('sprites/smallrocket.png');
+                bullet.anchor.set(0.5);
+                bullet.width = 30;
+                bullet.height = 30;
+                bullet.horizontalSpeed = 0;
+                bullet.x = ship.x;
+                bullet.y = ship.y;
+                bullet.verticalSpeed = -1;
+                bullet.a = 1.005;
+                bullet.damage = bullet.width+bullet.height;
                 bullets.push(bullet);
                 app.stage.addChild(bullet);
             }
@@ -332,10 +356,14 @@ function createMeteor() {
     } else {
         meteor.horizontalSpeed = getRand(0,10)/20;
     }
-    meteor.verticalSpeed = getRand(1,30)/10;
-    meteor.scale.x *= 0.1;
-    meteor.scale.y *= 0.1;
+    meteor.verticalSpeed = getRand(5,30)/10;
+    meteor.width = 40/meteor.verticalSpeed + 10;
+    meteor.height = 30/meteor.verticalSpeed + 10;
+    //meteor.scale.x *= 0.1;
+    //meteor.scale.y *= 0.1;
     meteor.isHit = isHit;
+    meteor.health = meteor.width+meteor.height;
+    console.log(meteor.health);
     meteors.push(meteor);
     app.stage.addChild(meteor);
 }
@@ -375,8 +403,8 @@ function gameOver() {
 
 function start() {
     createShip();
-    intervalID.push(setInterval(createMeteor, 500));
-    intervalID.push(setInterval(createCloud, 1000));
+    intervalID.push(setInterval(createMeteor, 1000));
+    intervalID.push(setInterval(createCloud, 2000));
 }
 
 /*
