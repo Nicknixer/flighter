@@ -1,8 +1,15 @@
-var app = new PIXI.Application(800, 600, {backgroundColor : 0x1099bb});
+"use strict";
+
+let app = new PIXI.Application(800, 600, {backgroundColor : 0x1099bb});
+
 document.body.appendChild(app.view);
-// inits
 document.onmousemove = mouse_position;
 document.onmousedown = fire;
+document.onkeydown = key;
+
+/*
+ * Класс статистики
+ */
 
 class Statistic {
     constructor() {
@@ -11,10 +18,19 @@ class Statistic {
 
     }
 
+    /*
+     * Добавление денег
+     * @param Integer arg - количество денег
+     */
+
     addMoney(arg) {
         this.money += arg;
         this.moneyView.text = "Деньги: " + this.money;
     }
+
+    /*
+     * Отрисовка количества денег
+     */
 
     drawMoney() {
         var style = new PIXI.TextStyle({
@@ -29,40 +45,48 @@ class Statistic {
         this.moneyView.y = app.renderer.height - 10;
         app.stage.addChild(this.moneyView);
     }
+
+    /*
+     * Очищаем всю статистику
+     */
+
     clear() {
         this.addMoney(-1 * this.money);
     }
 }
 
-var lastTime = 0,
-    meteors = [],
-    clouds = [],
-    bullets = [],
-    ship,
+let meteors = [], // Массив с метеорами
+    clouds = [], // Массив с облаками
+    bullets = [], // Массив с выпущенными ракетами
+    ship, // Ссылка на объект корабля
     x, // x координата указателя
     y, // y координата указателя
     body = document.querySelector("body"),
-    lastShoot = 0,
-    intervalID = [],
+    lastShoot = 0, // Хранит время последнего выстрела
+    intervalID = [], // Массив с идентификаторами всех setInterval'ов
     stats = new Statistic();
 
 startButton();
 upgareButton();
+
 /*
  * Сохраняем координаты указателя мыши
  */
+
 function mouse_position(e) {
-    x = e.x;
-    y = e.y;
+    if (document.attachEvent != null) {
+        x = window.event.clientX;
+        y = window.event.clientY;
+    } else if (!document.attachEvent && document.addEventListener) {
+        x = event.clientX;
+        y = event.clientY;
+    }
 }
-
-
 
 function startTheGame() {
     start();
 
     app.ticker.add(function() {
-        let d = new Date();
 
         // Крутим метеоры
         meteors.forEach(function (meteor, i) {
@@ -133,7 +157,7 @@ function startTheGame() {
 }
 
 /*
- * Обработчик выстрела
+ * Получение случайного числа
  */
 
 function getRand(min, max) {
@@ -212,14 +236,15 @@ function createShip() {
 
 function createCloud() {
     let cloud = PIXI.Sprite.fromImage('sprites/cloud.png');
+    let scale = 0.7 * getRand(2,5);
+
     cloud.anchor.set(0.5);
     cloud.x = getRand(10, app.renderer.width - 10);
     cloud.y = -200;
     cloud.rotation = getRand(1,8);
-    cloud.verticalSpeed = (5 + getRand(1,5)) / 10;
-    let scale = 0.7 * getRand(2,5);
     cloud.scale.x *= scale;
     cloud.scale.y *= scale;
+    cloud.verticalSpeed = (5 + scale) / 10;
     clouds.push(cloud);
     app.stage.addChild(cloud);
 }
@@ -276,11 +301,19 @@ function gameOver() {
     startButton();
 }
 
+/*
+ * Рестарт
+ */
+
 function start() {
     createShip();
     intervalID.push(setInterval(createMeteor, 500));
     intervalID.push(setInterval(createCloud, 1000));
 }
+
+/*
+ * Кнопка старт
+ */
 
 function startButton() {
     // Стиль для кнопки START
@@ -340,3 +373,16 @@ function upgareButton() {
     }
 }
 
+function upgradeWeapon() {
+    let cost = ship.weaponLevel*10 + 10;
+    if(stats.money > cost) {
+        stats.addMoney(-cost);
+        ship.weaponLevel += 1;
+    }
+}
+
+function key(e) {
+    if(event.keyCode == 49) {
+        upgradeWeapon();
+    }
+}
