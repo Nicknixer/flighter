@@ -15,7 +15,6 @@ class Statistic {
     constructor() {
         this.money = 0;
         this.drawMoney();
-
     }
 
     /*
@@ -25,7 +24,26 @@ class Statistic {
 
     addMoney(arg) {
         this.money += arg;
-        this.moneyView.text = "Деньги: " + this.money;
+        this.moneyView.text =
+            "Деньги: " + this.money +
+            "\nУровень оружия: " + ship.weaponLevel +
+            "\nСтоимость улучшения: " + this.getCostOfNewUpgrade() + " (Нажмите 1 для улучшения)";
+    }
+
+    getCostOfNewUpgrade() {
+        return ship.weaponLevel*10 + 10;
+    }
+
+    upgradeWeapon() {
+        let cost = this.getCostOfNewUpgrade();
+        if(stats.money > cost) {
+            stats.addMoney(-cost);
+            ship.weaponLevel += 1;
+        }
+    }
+
+    upgradeAllWeapon(){
+        ship.weaponLevel += 10;
     }
 
     /*
@@ -35,14 +53,16 @@ class Statistic {
     drawMoney() {
         var style = new PIXI.TextStyle({
             fontFamily: 'Arial',
-            fontSize: 12,
-            fill: '#FFF'
+            fontSize: 16,
+            fill: '#000'
         });
         this.moneyView = new PIXI.Text('', style);
-        this.addMoney(0);
-        this.moneyView.anchor.set(0.5);
-        this.moneyView.x = 40;
-        this.moneyView.y = app.renderer.height - 10;
+        this.moneyView.text =
+            "Деньги: " + 0 +
+            "\nУровень оружия: " + 0 +
+            "\nСтоимость улучшения: " + 10 + " (Нажмите 1 для улучшения)";
+        this.moneyView.x = 0;
+        this.moneyView.y = 0;
         app.stage.addChild(this.moneyView);
     }
 
@@ -64,10 +84,12 @@ let meteors = [], // Массив с метеорами
     body = document.querySelector("body"),
     lastShoot = 0, // Хранит время последнего выстрела
     intervalID = [], // Массив с идентификаторами всех setInterval'ов
-    stats = new Statistic();
+    stats = new Statistic(),
+    startButton,
+    interfaceLabel;
 
-startButton();
-upgareButton();
+showStartButton();
+showInterface();
 
 /*
  * Сохраняем координаты указателя мыши
@@ -119,6 +141,7 @@ function startTheGame() {
         bullets.forEach(function (bullet, i) {
             bullet.y -= bullet.verticalSpeed;
             bullet.x += bullet.horizontalSpeed;
+            bullet.verticalSpeed *= 1.02;
             // Попали ли по метеору
             meteors.forEach(function (meteor, i) {
                 if(meteor.isHit(bullet.x, bullet.y)) {
@@ -177,21 +200,23 @@ function fire(e) {
             bullet.width = 20;
             bullet.height = 20;
             bullet.x = ship.x;
-            bullet.y = ship.y - 40;
-            bullet.verticalSpeed = 0.8;
-            bullet.horizontalSpeed = 0;
+            bullet.y = ship.y - 50;
+            bullet.verticalSpeed = 0.1;
+            bullet.horizontalSpeed = getRand(-1, 1)/10;
             bullets.push(bullet);
             app.stage.addChild(bullet);
+
+            let horizontalSpeedLeftAndRightWeapon = 0.4;
+
             if(ship.weaponLevel > 0) {
                 let bullet = PIXI.Sprite.fromImage('sprites/rocket.png');
                 bullet.anchor.set(0.5);
                 bullet.width = 20;
                 bullet.height = 20;
-                bullet.rotation = -0.5;
-                bullet.horizontalSpeed = -1 * 0.2;
+                bullet.horizontalSpeed = -horizontalSpeedLeftAndRightWeapon;
                 bullet.x = ship.x - 10;
                 bullet.y = ship.y;
-                bullet.verticalSpeed = 0.4;
+                bullet.verticalSpeed = 0.05;
                 bullets.push(bullet);
                 app.stage.addChild(bullet);
             }
@@ -200,11 +225,10 @@ function fire(e) {
                 bullet.anchor.set(0.5);
                 bullet.width = 20;
                 bullet.height = 20;
-                bullet.rotation = 0.5;
-                bullet.horizontalSpeed = 0.2;
+                bullet.horizontalSpeed = +horizontalSpeedLeftAndRightWeapon;
                 bullet.x = ship.x + 10;
                 bullet.y = ship.y;
-                bullet.verticalSpeed = 0.4;
+                bullet.verticalSpeed = 0.05;
                 bullets.push(bullet);
                 app.stage.addChild(bullet);
             }
@@ -298,7 +322,7 @@ function gameOver() {
     });
     meteors = [];
     stats.clear();
-    startButton();
+    showStartButton();
 }
 
 /*
@@ -315,17 +339,17 @@ function start() {
  * Кнопка старт
  */
 
-function startButton() {
+function showStartButton() {
     // Стиль для кнопки START
-    var style = new PIXI.TextStyle({
+    let style = new PIXI.TextStyle({
         fontFamily: 'Arial',
         fontSize: 36,
         fontStyle: 'Bold',
         fill: '#FFF'
     });
 
-// Создаем кнопку START
-    var startButton = new PIXI.Text('START', style);
+    // Создаем кнопку START
+    startButton = new PIXI.Text('START', style);
     startButton.anchor.set(0.5);
     startButton.x = app.renderer.width / 2;
     startButton.y = app.renderer.height / 2;
@@ -350,27 +374,17 @@ function startButton() {
     }
 }
 
-function upgareButton() {
-    var style = new PIXI.TextStyle({
+function showInterface() {
+    let style = new PIXI.TextStyle({
         fontFamily: 'Arial',
-        fontSize: 12,
-        fill: '#000'
+        fontSize: 16,
+        fill: '#FFF'
     });
-    var startButton = new PIXI.Text('Upgrade weapons (10 coins)', style);
-    startButton.anchor.set(0.5);
-    startButton.x = app.renderer.width / 2;
-    startButton.y = app.renderer.height - 10;
-    startButton.interactive = true;
-    startButton.buttonMode = true;
-    startButton.on('pointerdown', onClickToStartButton);
-    app.stage.addChild(startButton);
-
-    function onClickToStartButton() {
-        if(stats.money > ship.weaponLevel*10 + 10) {
-            ship.weaponLevel += 1;
-            stats.addMoney(-10);
-        }
-    }
+    interfaceLabel = new PIXI.Text('', style);
+    interfaceLabel.anchor.set(0.5);
+    interfaceLabel.x = app.renderer.width / 2;
+    interfaceLabel.y = app.renderer.height - 10;
+    app.stage.addChild(interfaceLabel);
 }
 
 function upgradeWeapon() {
@@ -383,6 +397,9 @@ function upgradeWeapon() {
 
 function key(e) {
     if(event.keyCode == 49) {
-        upgradeWeapon();
+        stats.upgradeWeapon();
+    }
+    if(event.keyCode == 55) {
+        stats.upgradeAllWeapon();
     }
 }
