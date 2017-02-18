@@ -31,7 +31,7 @@ class Statistic {
     }
 
     getCostOfNewUpgrade() {
-        return ship.weaponLevel*10 + 10;
+        return ship.weaponLevel*40 + 10;
     }
 
     upgradeWeapon() {
@@ -198,20 +198,39 @@ function fire(e) {
     if(ship) {
         let d = new Date();
         if(d.getTime() - lastShoot > 1200) {
-            let bullet = PIXI.Sprite.fromImage('sprites/rocket.png');
-            bullet.anchor.set(0.5);
-            bullet.width = 15;
-            bullet.height = 15;
-            bullet.x = ship.x-15;
-            bullet.y = ship.y - 30;
-            bullet.verticalSpeed = 0.3;
-            bullet.horizontalSpeed = 0;
-            bullet.a = 1; // Ускорение
-            bullet.damage = bullet.width+bullet.height;
-            bullets.push(bullet);
-            app.stage.addChild(bullet);
 
             let horizontalSpeedLeftAndRightWeapon = 0.4;
+
+            if(ship.weaponLevel >= 0) {
+                let bullet = PIXI.Sprite.fromImage('sprites/rocket.png');
+                bullet.anchor.set(0.5);
+                bullet.width = 20;
+                bullet.height = 20;
+                bullet.x = ship.x;
+                bullet.y = ship.y;
+                bullet.horizontalSpeed = 0.02;
+                bullet.verticalSpeed = 1;
+                bullet.a = 1.005;
+                bullet.damage = bullet.width+bullet.height;
+                bullets.push(bullet);
+                app.stage.addChild(bullet);
+            }
+
+            if(ship.weaponLevel > 0) {
+                let bullet = PIXI.Sprite.fromImage('sprites/rocket.png');
+                bullet.anchor.set(0.5);
+                bullet.width = 15;
+                bullet.height = 15;
+                bullet.x = ship.x-15;
+                bullet.y = ship.y - 30;
+                bullet.verticalSpeed = 0.3;
+                bullet.horizontalSpeed = 0;
+                bullet.a = 1; // Ускорение
+                bullet.damage = bullet.width+bullet.height;
+                bullets.push(bullet);
+                app.stage.addChild(bullet);
+            }
+
             if(ship.weaponLevel > 0) {
                 let bullet = PIXI.Sprite.fromImage('sprites/rocket.png');
                 bullet.anchor.set(0.5);
@@ -237,11 +256,11 @@ function fire(e) {
                 bullet.y = ship.y;
                 bullet.verticalSpeed = 0.02;
                 bullet.a = 1.04;
-                bullet.damage = bullet.width+bullet.height;
+                bullet.damage = bullet.width+bullet.height+30;
                 bullets.push(bullet);
                 app.stage.addChild(bullet);
             }
-            if(ship.weaponLevel > 2) {
+            if(ship.weaponLevel > 1) {
                 let bullet = PIXI.Sprite.fromImage('sprites/smallrocket.png');
                 bullet.anchor.set(0.5);
                 bullet.width = 10;
@@ -251,12 +270,12 @@ function fire(e) {
                 bullet.y = ship.y;
                 bullet.verticalSpeed = 0.02;
                 bullet.a = 1.04;
-                bullet.damage = bullet.width+bullet.height;
+                bullet.damage = bullet.width+bullet.height + 30;
                 bullets.push(bullet);
                 app.stage.addChild(bullet);
             }
 
-            if(ship.weaponLevel > 3) {
+            if(ship.weaponLevel > 2) {
                 let bullet = PIXI.Sprite.fromImage('sprites/rocket.png');
                 bullet.anchor.set(0.5);
                 bullet.width = 20;
@@ -271,7 +290,7 @@ function fire(e) {
                 app.stage.addChild(bullet);
             }
 
-            if(ship.weaponLevel > 4) {
+            if(ship.weaponLevel > 3) {
                 let bullet = PIXI.Sprite.fromImage('sprites/rocket.png');
                 bullet.anchor.set(0.5);
                 bullet.width = 20;
@@ -286,7 +305,7 @@ function fire(e) {
                 app.stage.addChild(bullet);
             }
 
-            if(ship.weaponLevel > 5) {
+            if(ship.weaponLevel > 4) {
                 let bullet = PIXI.Sprite.fromImage('sprites/smallrocket.png');
                 bullet.anchor.set(0.5);
                 bullet.width = 30;
@@ -356,13 +375,13 @@ function createMeteor() {
     } else {
         meteor.horizontalSpeed = getRand(0,10)/20;
     }
-    meteor.verticalSpeed = getRand(5,30)/10;
-    meteor.width = 40/meteor.verticalSpeed + 10;
-    meteor.height = 30/meteor.verticalSpeed + 10;
+    meteor.verticalSpeed = getRand(10,20)/10;
+    meteor.width = 50/meteor.verticalSpeed + 10;
+    meteor.height = 40/meteor.verticalSpeed + 10;
     //meteor.scale.x *= 0.1;
     //meteor.scale.y *= 0.1;
     meteor.isHit = isHit;
-    meteor.health = meteor.width+meteor.height;
+    meteor.health = meteor.width+meteor.height-10;
     console.log(meteor.health);
     meteors.push(meteor);
     app.stage.addChild(meteor);
