@@ -116,7 +116,7 @@ class Statistic {
         this.shipLevel = 1;
         this.weaponLevel = 1;
         this.level = 1;
-        this.money = 0;
+        this.drawStat();
     }
 }
 
