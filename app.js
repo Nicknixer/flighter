@@ -42,14 +42,32 @@ class Statistic {
         this.drawStat();
     }
 
+    /*
+     * Добавление здоровья
+     * @param Integer arg - количество хитпоинтов
+     */
+
     addHealth(arg) {
         this.health += arg;
+
+        if(this.health >= this.shipLevel*100) {
+            this.health = this.shipLevel*100;
+        }
+
         this.drawStat();
     }
+
+    /*
+     * @return Integer - цена апгрейда оружия
+     */
 
     getCostOfNewUpgrade() {
         return this.weaponLevel*this.weaponLevel*30;
     }
+
+    /*
+     * @return Integer - цена апгрейда корабля
+     */
 
     getCostOfNewUpgradeShip() {
         return this.shipLevel*this.shipLevel*30;
@@ -64,6 +82,10 @@ class Statistic {
         this.drawStat();
     }
 
+    /*
+     * Апгрейд корабля
+     */
+
     upgradeShip() {
         let cost = this.getCostOfNewUpgradeShip();
         if(stats.money > cost) {
@@ -73,10 +95,18 @@ class Statistic {
         this.drawStat();
     }
 
+    /*
+     * Апгрейд всех оружий (Сделано для тестирования)
+     */
+
     upgradeAllWeapon(){
         this.weaponLevel += 10;
         this.drawStat();
     }
+
+    /*
+     * Полный апгрейд корабля (Сделано для тестирования)
+     */
 
     upgradeAllShip(){
         this.shipLevel += 10;
@@ -84,7 +114,7 @@ class Statistic {
     }
 
     /*
-     * Отрисовка количества денег
+     * Отрисовка интерфейса
      */
 
     drawStat() {
@@ -99,11 +129,6 @@ class Statistic {
 
     healShip() {
         this.level += 0.07;
-        if(this.health >= this.shipLevel*100) {
-            this.health = this.shipLevel*100;
-        } else {
-            this.addHealth(this.shipLevel*3);
-        }
     }
 
     /*
@@ -149,6 +174,10 @@ function mouse_position(e) {
         y = event.clientY;
     }
 }
+
+/*
+ * Старт игры
+ */
 
 function startTheGame() {
     start();
