@@ -595,16 +595,20 @@ function showInterface() {
     app.stage.addChild(interfaceLabel);
 }
 
+/*
+ * Обработчик нажатия клавиш
+ */
+
 function key(e) {
-    if(event.keyCode == 49) {
+    if(event.keyCode == 49) { // Кнопка 1
         stats.upgradeWeapon();
     }
 
-    if(event.keyCode == 50) {
+    if(event.keyCode == 50) { // Кнопка 2
         stats.upgradeShip();
     }
 
-    if(event.keyCode == 55) {
+    if(event.keyCode == 55) { // Кнопка 7
         stats.upgradeAllWeapon();
         stats.upgradeAllShip();
     }
